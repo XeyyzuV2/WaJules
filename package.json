@@ -1,0 +1,16 @@
+{
+  "name": "wajules-bot",
+  "version": "1.0.0",
+  "description": "WhatsApp Bot using Baileys",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.2",
+    "pino": "^8.1.0",
+    "chalk": "^4.1.2",
+    "fluent-ffmpeg": "^2.1.2",
+    "wa-sticker-formatter": "^4.4.4"
+  }
+}
