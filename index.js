@@ -28,46 +28,21 @@ console.warn = (msg) => logger.warn(msg);
 console.info = (msg) => logger.info(msg);
 
 
-const readline = require('readline');
-
-const question = (text) => {
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-    return new Promise((resolve) => {
-        rl.question(text, (answer) => {
-            rl.close();
-            resolve(answer);
-        });
-    });
-};
-
+function getAuthMethod() {
+    const authMethodArg = process.argv.find(arg => arg.startsWith('AUTH_METHOD='));
+    if (authMethodArg) {
+        return authMethodArg.split('=')[1].toLowerCase();
+    }
+    return process.env.AUTH_METHOD ? process.env.AUTH_METHOD.toLowerCase() : 'qr'; // Default to QR
+}
 
 async function startBot() {
-    const menu = `
-Please choose your authentication method:
-1: QR Code
-2: Pairing Code
-3: OTP
-`;
-    console.log(menu);
-    const choice = await question('Enter your choice (1-3): ');
+    const authMethod = getAuthMethod();
+    const validMethods = ['qr', 'pairing', 'otp'];
 
-    let authMethod;
-    switch (choice.trim()) {
-        case '1':
-            authMethod = 'qr';
-            break;
-        case '2':
-            authMethod = 'pairing';
-            break;
-        case '3':
-            authMethod = 'otp';
-            break;
-        default:
-            console.error('Invalid choice. Exiting.');
-            process.exit(1);
+    if (!validMethods.includes(authMethod)) {
+        console.error(`Invalid authentication method: ${authMethod}. Please use one of ${validMethods.join(', ')}.`);
+        process.exit(1);
     }
 
     console.info(`Starting bot with authentication method: ${authMethod.toUpperCase()}`);
@@ -83,9 +58,9 @@ Please choose your authentication method:
 startBot();
 
 process.on('unhandledRejection', (err) => {
-    logger.error('Unhandled Rejection:', err);
+    console.error('Unhandled Rejection:', err);
 });
 
 process.on('uncaughtException', (err) => {
-    logger.error('Uncaught Exception:', err);
+    console.error('Uncaught Exception:', err);
 });
