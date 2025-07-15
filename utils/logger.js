@@ -12,4 +12,8 @@ const warn = (text) => {
     console.log(chalk.yellow(text));
 }
 
-module.exports = { log, error, warn };
+const info = (text) => {
+    console.log(chalk.blue(text));
+}
+
+module.exports = { log, error, warn, info };
