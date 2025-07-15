@@ -30,24 +30,32 @@ console.info = (msg) => logger.info(msg);
 
 const readline = require('readline');
 
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
-const question = (text) => new Promise((resolve) => rl.question(text, resolve));
+const question = (text) => {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+    return new Promise((resolve) => {
+        rl.question(text, (answer) => {
+            rl.close();
+            resolve(answer);
+        });
+    });
+};
 
 
 async function startBot() {
-    console.log('Please choose your authentication method:');
-    console.log('1: QR Code');
-    console.log('2: Pairing Code');
-    console.log('3: OTP');
-
+    const menu = `
+Please choose your authentication method:
+1: QR Code
+2: Pairing Code
+3: OTP
+`;
+    console.log(menu);
     const choice = await question('Enter your choice (1-3): ');
 
     let authMethod;
-    switch (choice) {
+    switch (choice.trim()) {
         case '1':
             authMethod = 'qr';
             break;
@@ -63,7 +71,6 @@ async function startBot() {
     }
 
     console.info(`Starting bot with authentication method: ${authMethod.toUpperCase()}`);
-    rl.close();
 
     try {
         await connectToWhatsApp(authMethod);
