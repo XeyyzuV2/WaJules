@@ -1,5 +1,24 @@
+const pino = require('pino');
+const fs = require('fs');
 const connectToWhatsApp = require('./lib/connect');
-const logger = require('./utils/logger');
+
+const logFilePath = 'bot.log';
+
+// Hapus file log lama jika ada
+if (fs.existsSync(logFilePath)) {
+    fs.unlinkSync(logFilePath);
+}
+
+const logger = pino({
+    level: 'info',
+}, pino.destination(logFilePath));
+
+// Redirect console.log/error/warn/info ke pino logger
+console.log = (msg) => logger.info(msg);
+console.error = (msg) => logger.error(msg);
+console.warn = (msg) => logger.warn(msg);
+console.info = (msg) => logger.info(msg);
+
 
 function getAuthMethod() {
     const authMethodArg = process.argv.find(arg => arg.startsWith('AUTH_METHOD='));
