@@ -1,3 +1,11 @@
+/**
+ * WaJules - WhatsApp Bot
+ *
+ * Copyright (c) 2024 Xeyyzu and Jules
+ *
+ * This code is licensed under the MIT License.
+ * http://opensource.org/licenses/MIT
+ */
 const pino = require('pino');
 const fs = require('fs');
 const connectToWhatsApp = require('./lib/connect');
@@ -20,29 +28,47 @@ console.warn = (msg) => logger.warn(msg);
 console.info = (msg) => logger.info(msg);
 
 
-function getAuthMethod() {
-    const authMethodArg = process.argv.find(arg => arg.startsWith('AUTH_METHOD='));
-    if (authMethodArg) {
-        return authMethodArg.split('=')[1].toLowerCase();
-    }
-    return process.env.AUTH_METHOD ? process.env.AUTH_METHOD.toLowerCase() : 'qr'; // Default to QR
-}
+const readline = require('readline');
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+const question = (text) => new Promise((resolve) => rl.question(text, resolve));
+
 
 async function startBot() {
-    const authMethod = getAuthMethod();
-    const validMethods = ['qr', 'pairing', 'otp'];
+    console.log('Please choose your authentication method:');
+    console.log('1: QR Code');
+    console.log('2: Pairing Code');
+    console.log('3: OTP');
 
-    if (!validMethods.includes(authMethod)) {
-        logger.error(`Invalid authentication method: ${authMethod}. Please use one of ${validMethods.join(', ')}.`);
-        process.exit(1);
+    const choice = await question('Enter your choice (1-3): ');
+
+    let authMethod;
+    switch (choice) {
+        case '1':
+            authMethod = 'qr';
+            break;
+        case '2':
+            authMethod = 'pairing';
+            break;
+        case '3':
+            authMethod = 'otp';
+            break;
+        default:
+            console.error('Invalid choice. Exiting.');
+            process.exit(1);
     }
 
-    logger.info(`Starting bot with authentication method: ${authMethod.toUpperCase()}`);
+    console.info(`Starting bot with authentication method: ${authMethod.toUpperCase()}`);
+    rl.close();
 
     try {
         await connectToWhatsApp(authMethod);
     } catch (error) {
-        logger.error('Failed to start bot:', error);
+        console.error('Failed to start bot:', error);
         process.exit(1);
     }
 }
